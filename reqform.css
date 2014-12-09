@@ -1,0 +1,29 @@
+#primary, #secondary, #tertiary{
+	
+	}
+
+.colorbox{
+	width:10px; 
+	height:20px;
+	font-family: verdana;
+	font-size: 0pt;
+	overflow: hidden;
+	display: inline-block;
+	margin: 2px;
+	}
+	
+.colorbox:hover{
+	padding-top: 1ex;
+	width: 5em;
+	font-size: 10pt;
+	}
+	
+h2{
+	font-size: 12pt;
+	}
+	
+
+	
+//TODO make them not be on top of each other
+//having a slide on hover would be nice but it's not a priority
+
