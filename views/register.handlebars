@@ -1,0 +1,35 @@
+<h1>Register for an account!</h1>
+
+<form method="POST" name="regform" action="makeaccount" onsubmit="return(validate())">
+	<h2>Name</h2>
+	<input type="text" name="name">
+	<h2>FR ID #</h2>
+	<input type="number" name="id">
+	<h2>Password</h2>
+	<p>(NOT YOUR FLIGHT RISING PASSWORD. Internet 101 says never enter your password on another site! What if I was some sort of horrible nasty dragon thief?)</p>
+	<input type="password" name="pw1">
+	<h2>Repeat Password</h2>
+	<p>(Still not the flight rising one)</p>
+	<input type="password" name="pw2">
+	
+	<p><input type="submit" value="Register!"></p>
+</form>
+	
+<script>
+
+function validate(){
+	if(document.regform.name.value == ""){
+		alert("Surely you have a name?");
+		return false;
+		}
+	if(document.regform.id.value == ""){
+		alert("If you don't have a Flight Rising account, why are you here?");
+		return false;
+		}
+	if(document.regform.pw1.value == "" || document.regform.pw1.value != document.regform.pw2.value){
+		alert("...Password?");
+		return false;
+		}
+		return true;
+}
+</script>

@@ -32,16 +32,16 @@ mongoose.model('DDragon', DreamDragonSchema);
 	DDragon = mongoose.model('DDragon');
 
 var SaleDragonSchema = new mongoose.Schema({ 
-	player: String, 
-	breed: {type:String, enum: ['guardian', 'tundra', ""]},
+	player: String, 	
+	breed: {type:String, enum: ['guardian', 'tundra', "fae", "mirror", "spiral", "snapper", "ridgeback", "pearlcatcher", "skydancer", "wildclaw", "coatl", "imperial", "" ]},
 	sex: Boolean,
-	element: {type:String, enum: ['fire', 'ice', ""]},
+	element: {type:String, enum: ['fire', 'ice', "lightning", "shadow", "light", "nature", "plague", "arcane", "water", "wind", "earth"]},
 	primary: Number,
 	secondary: Number,
 	tertiary: Number,
-	pgene: {type:String, enum: ['basic', 'speckle', ""]},
-	sgene: {type:String, enum: ['basic', 'stripes', ""]},
-	tgene: {type:String, enum: ['basic', 'underbelly', ""]},
+	pgene: {type:String, enum: ['basic', 'speckle', "tiger", "clown", "iridescent", "crystal", "ripple", "bar", ""]},
+	sgene: {type:String, enum: ['basic', 'stripes', "shimmer", "eyespots", "freckle", "seraph", "current", "daub", ""]},
+	tgene: {type:String, enum: ['basic', 'underbelly', "circuit", "gembond", "smoke", "spines", "crackle", ""]},
 	id : Number,
 	price: Number
 	});//end dreamdragonschema
@@ -49,7 +49,18 @@ var SaleDragonSchema = new mongoose.Schema({
 mongoose.model('SDragon', SaleDragonSchema);
 	SDragon = mongoose.model('SDragon');
 	
-	mongoose.connect('mongodb://localhost/dragons');
+var AccountSchema = new mongoose.Schema({
+	"name" : String,
+	"id" : Number,
+	"password" : String
+	});
+
+mongoose.model('Account', AccountSchema);
+	Account = mongoose.model('Account');
+	
+mongoose.connect('mongodb://localhost/dragons');
+
+//handle cookies
 
 
 
@@ -74,6 +85,26 @@ app.get('/buy', function(req, res) {
 app.get('/sell', function(req, res) {
 	res.render('ssearch');
 });//end get buy
+
+app.get('/login', function(req, res){
+	res.render('login');
+}); //end get login
+
+app.get('/register', function(req, res){
+	res.render('register');
+});
+
+app.get('/allreq', function(req, res){
+	DDragon.find( {}, function(err, dragons, count){
+				res.render('ssearchresults', {dragons : dragons});
+		});
+});//end get all requests
+
+app.get('/allsale', function(req, res){
+	SDragon.find( {}, function(err, dragons, count){
+				res.render('ssearchresults', {dragons : dragons});
+		});
+});//end get all requests
 
 
 
@@ -164,10 +195,69 @@ app.post('/buy/add', function(req, res){
 	res.send("hooray");
 });//end buy/add
 
+//sell search results
+app.post('/sell/search', function(req, res){	
+	DDragon.find(
+	{
+		breed: {$in: [req.body.breed, ""]},
+		sex: {$in: [req.body.sex, null]},
+		element: {$in: [req.body.element, ""]},
+		primary: {$in: [ req.body.primary, 0]},
+		//secondary: {$in: [ req.body.secondary, 0]},
+		//tertiary: {$in: [ req.body.tertiary, 0]},
+		//pgene: {$in: [ req.body.pgene, ""]},
+		//sgene: {$in: [ req.body.sgene, ""]},
+		//tgene: {$in: [ req.body.tgene, ""]}
+	
+	}, function(err, dragons, count){
+		
+		//if results are empty
+		if(dragons.length == 0){
+			//srequest.player = "me";
+			//new SDragon(srequest).save();
+		//	res.send("No matches :C Your dragon has been added to the sale database");
+		
+		}//end if
+		
+		else{
+			res.render('ssearchresults', {dragons : dragons});
+		}
+		
+		});//end find
+});//end sell/search
 
-app.post('/sell/search', function(req, res){
-	res.send("TODO");
-});
+//login
+app.post('/logged', function(req, res){
+	Account.find({name: req.body.name, password: req.body.password}, function(err, account, count){
+		if(account.length >=0){
+			
+			res.redirect('/');
+		}
+		else{
+			res.send("Sorry, wrong username or password.");
+		}
+	});
+});//end login 
+
+app.post('/makeaccount', function(req, res){
+	if(req.body.pw1 != req.body.pw2){
+		res.send("Passwords don't match!");
+	}
+	else{
+	
+	Account.find({name: req.body.name}, function(err, account, count){
+		if(account.length >0){
+			res.send("Sorry, that name is taken!");
+		}//end if
+		else{
+			new Account({name: req.body.name, id: req.body.id, password: req.body.pw1}).save();
+			
+			res.send("You made your account! Now go <a href=/login>log in</a>");
+		}//end else
+	});//end find
+	}//end else
+});//end register
+
 
 
 app.listen(3000);

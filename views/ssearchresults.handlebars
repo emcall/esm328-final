@@ -1,0 +1,20 @@
+<ul>
+{{#each dragons}}
+<li>{{this.player}} is looking for a {{this.element}} {{this.sex}} {{this.breed}} dragon with {{this.primary}} {{this.pgene}} {{this.secondary}} {{this.sgene}} {{this.tertiary}} {{this.tgene}}.
+{{/each}}
+</ul>
+
+
+<p>Unhappy with these results?</p>
+<form method="POST" action="add">
+		<input type="hidden" name="primary" value={{srequest.primary}}>
+		<input type="hidden" name="secondary" value={{srequest.secondary}}>
+		<input type="hidden" name="tertiary" value={{srequest.tertiary}}>
+		<input type="hidden" name="pgene" value={{srequest.pgene}}>
+		<input type="hidden" name="sgene" value={{srequest.sgene}}>
+		<input type="hidden" name="tgene" value={{srequest.tgene}}>
+		<input type="hidden" name="breed" value={{srequest.breed}}>
+		<input type="hidden" name="element" value={{srequest.element}}>
+		<input type="hidden" name="sex" value={{srequest.sex}}>
+		<input type="hidden" name="player">
+	<input type="submit" value="Add my request to the database!"></form>
