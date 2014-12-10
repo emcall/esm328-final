@@ -4,10 +4,15 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser')
 var handlebars = require('express-handlebars').create({'defaultLayout':'main'});
 
+var path = require("path");
+
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ extended: false }));
 
+var publicPath = path.resolve(__dirname, "public");
+app.use(express.static(publicPath));
 
 //mongoose stuff
 var DreamDragonSchema = new mongoose.Schema({ 
@@ -49,6 +54,10 @@ app.get('/buy', function(req, res) {
 });
 
 
+
+
+
+
 //buy search results
 app.get('/buy/search', function(req, res){
 	DDragon.find(function(err, dragons, count){
@@ -61,14 +70,18 @@ app.get('/buy/search', function(req, res){
 
 //add request to database
 app.post('/buy/add', function(req, res){
+
+	//search the sales database
+	//no results? add request
+
 	new DDragon({
 		player: "me",
 		breed: req.body.breed,
 		sex: null,
 		element: req.body.element,
-		primary: 0,
-		secondary: 0,
-		tertiary: 0,
+		primary: req.body.primary,
+		secondary: req.body.secondary,
+		tertiary: req.body.tertiary,
 		pgene: req.body.pgene,
 		sgene: req.body.sgene,
 		tgene: req.body.tgene
