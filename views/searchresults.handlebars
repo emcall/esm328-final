@@ -1,1 +1,21 @@
-results
+<ul>
+{{#each dragons}}
+<li>{{this.breed}}
+{{/each}}
+</ul>
+
+{{drequest.breed}}
+
+<p>Unhappy with these results?</p>
+<form method="POST" action="add">
+		<input type="hidden" name="primary" value={{drequest.primary}}>
+		<input type="hidden" name="secondary" value={{drequest.secondary}}>
+		<input type="hidden" name="tertiary" value={{drequest.tertiary}}>
+		<input type="hidden" name="pgene" value={{drequest.pgene}}>
+		<input type="hidden" name="sgene" value={{drequest.sgene}}>
+		<input type="hidden" name="tgene" value={{drequest.tgene}}>
+		<input type="hidden" name="breed" value={{drequest.breed}}>
+		<input type="hidden" name="element" value={{drequest.element}}>
+		<input type="hidden" name="sex" value={{drequest.sex}}>
+		<input type="hidden" name="player">
+	<input type="submit" value="Add my request to the database!"></form>
