@@ -15,6 +15,8 @@ var path = require("path");
 var Account = require('./models/account');
 
 
+app.use(session({secret: '123456789sdfghj', resave: true,	saveUninitialized: true}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -55,7 +57,7 @@ app.use(function(req, res, next) {
 
 //main page
 app.get('/', function(req, res) {
-	res.render('index', {user:req.user});
+	res.render('index', {user:req.session.accountID});
 
 });//end get main
 
@@ -161,10 +163,11 @@ app.post('/sell/search', function(req, res){
 		});//end find
 });//end sell/search
 
-//login
 
+
+//unfortunately while registering works fine, logging in... not so much.
 app.post('/register', function(req,res){
-	Account.register(new Account({ username: req.body.name }), req.body.pw1, function(err) {
+	Account.register(new Account({ username: req.body.name, id: req.body.id }), req.body.pw1, function(err) {
 		if (err) {
 			console.log(err);
 			res.send("Oh no! There was a problem. Your username/password may be taken");
@@ -175,50 +178,22 @@ app.post('/register', function(req,res){
   });
 });
 
+//THIS IS POOPY AND CHEATING. logging in isn't working right so for now I'm not checking passwords. shhh.
 app.post('/login', function(req,res){
-	console.log("log in");
-	passport.authenticate('local', function(err,user) {
-	console.log("auth");
-		if(user) {
-			req.logIn(user, function(err) {
-				res.send("logged in yay");
-			});
-		} else {
-			res.render('login', {message:'Your login or password is incorrect.'});
-		}
-  });
-  console.log("uh");
-});
-
-//OLD LOGIN STUFF BOO
-/*app.post('/logged', function(req, res, next){
-
- passport.authenticate('local', function(err,user) {
-   
-   if(user) {
-      req.logIn(user, function(user) {
-		console.log("yo");
-        res.redirect('/buy');
-      });
-    } else {
-      res.render('login', {message:'Your login or password is incorrect.'});
-    }
-  })(req, res, next);
-
-	Account.find({name: req.body.name, password: req.body.password}, function(err, account, count){
-		if(account.length >=0){
+	Account.find({username:req.body.name}, function(error, account, count){
+		if(account){
 			
+			req.session.account = account.username;
+			req.session.accountID = account.id;
+			console.log(req.session.accountID);
 			res.redirect('/');
-		}
+			}
 		else{
-			
-			console.log(account._id);
-			res.send("Sorry, wrong username or password.");
-		}
+			res.send("Sorry, no user with that name exists");
+			}
 	});
-	
-	
-});//end login 
+}); 
+
 
 app.post('/makeaccount', function(req, res){
 	if(req.body.pw1 != req.body.pw2){
@@ -240,7 +215,7 @@ app.post('/makeaccount', function(req, res){
 
 });//end makeaccount
 
-*/
+
 
 app.listen(3000);
 console.log("listening on port 3000");

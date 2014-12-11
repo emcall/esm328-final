@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
     passportLocalMongoose = require('passport-local-mongoose');
 
 var Account = new Schema({
-   //	"id" : {type:Number, required:[true, "need an ID#"]},
+   	"id" : {type:Number, required:[true, "need an ID#"]},
 });
 
 Account.plugin(passportLocalMongoose);
