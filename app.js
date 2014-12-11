@@ -79,17 +79,6 @@ app.get('/register', function(req, res){
 	res.render('register', {user:req.session.name});
 });
 
-app.get('/allreq', function(req, res){
-	DDragon.find( {}, function(err, dragons, count){
-				res.render('ssearchresults', {dragons : dragons, user:req.session.name});
-		});
-});//end get all requests
-
-app.get('/allsale', function(req, res){
-	SDragon.find( {}, function(err, dragons, count){
-				res.render('ssearchresults', {dragons : dragons, user:req.session.name});
-		});
-});//end get all requests
 
 
 
@@ -187,6 +176,9 @@ app.post('/sell/add', function(req, res){
 		drequest.sgene = req.body.sgene;
 		drequest.tgene = req.body.tgene;
 		drequest.id = req.body.did;
+		
+		new SDragon(drequest).save();
+		res.send("Added your dragon to the sales. <a href='/'>Go Back</a>");
 });
 
 //unfortunately while registering works fine, logging in... not so much.

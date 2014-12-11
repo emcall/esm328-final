@@ -45,3 +45,8 @@ As a user looking to sell, I want to search the wanted list. If no users have re
 
 Research Topics:
 	API - Nope, nevermind about that. I was hoping to include something where a player with a dragon for sale could enter just the ID number and I could pull the rest of the information from the site. Unfortunately not only do they not have any sort of API, but apparently any program that takes any sort of data from the site, even data that is openly available, is strictly forbidden under their "botting" rule (someone should probably explain to the moderators what that word actually means).
+	
+	Client-Side Form Validation - Registration tests to make sure all fields are properly filled out.
+	
+	CSS Preprocessor - trying out Sass.
+	

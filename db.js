@@ -23,7 +23,7 @@ var SaleDragonSchema = new mongoose.Schema({
 	player: Number, 	
 	breed: {type:String, enum: ['guardian', 'tundra', "fae", "mirror", "spiral", "snapper", "ridgeback", "pearlcatcher", "skydancer", "wildclaw", "coatl", "imperial", "" ]},
 	sex: String,
-	element: {type:String, enum: ['fire', 'ice', "lightning", "shadow", "light", "nature", "plague", "arcane", "water", "wind", "earth"]},
+	element: {type:String, enum: ['fire', 'ice', "lightning", "shadow", "light", "nature", "plague", "arcane", "water", "wind", "earth", ""]},
 	primary: Number,
 	secondary: Number,
 	tertiary: Number,
