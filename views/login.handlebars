@@ -1,5 +1,5 @@
-{{#if user}} HEY{{/if}}
-
+{{#if user}}You're already logged in! <a href="/logout">Click Here to Log Out</a>
+{{else}}
 <h1>Log in to make and edit requests!</h1>
 <form method="POST" action="login">
 	<h2>Username</h2>
@@ -9,3 +9,4 @@
 	<input type="submit" value="login">
 </form>
 <p>No account? <a href="/register">Register here!</a>
+{{/if}}

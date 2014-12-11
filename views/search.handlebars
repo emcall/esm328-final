@@ -1,13 +1,4 @@
-<html>
-
-<head>
-	<title>Dragon Request Form</title>
-	<link href="scripts/reqform.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
-	<center>
-	<div id="content">
+{{#if user}}
 		<h1>Search for a Dragon!</h1>
 		<form method="POST" action="buy/search">
 			
@@ -98,8 +89,6 @@
 				</select>
 			<p><input type="submit" value="Search Database"></p>
 		</form>
-	</div>
-	</center>
-</body>
+
 		<script src="scripts/reqform.js"></script>
-</html>
+		{{/if}}

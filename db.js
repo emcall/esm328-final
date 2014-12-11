@@ -37,13 +37,16 @@ var SaleDragonSchema = new mongoose.Schema({
 mongoose.model('SDragon', SaleDragonSchema);
 	SDragon = mongoose.model('SDragon');
 	
-/*var User = new mongoose.Schema({
+	//since hash isnt working
+var AccountSchema = new mongoose.Schema({
+	"username": String,
+	"password": String,
 	"id" : {type:Number, required:[true, "need an ID#"]},
 	});
+	
+	mongoose.model('Account', AccountSchema);
+	Account = mongoose.model('Account');
 
 	
-	User.plugin(passportLocalMongoose);
-	
-	module.exports = mongoose.model('User', User);*/
 	
 mongoose.connect('mongodb://localhost/dragons');
