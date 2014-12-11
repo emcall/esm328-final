@@ -1,66 +1,49 @@
+require('./db');
+
 var express = require('express');
 var app = express();
 var mongoose = require('mongoose');
+
+var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser')
+var session = require('express-session');
 var handlebars = require('express-handlebars').create({'defaultLayout':'main'});
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 var path = require("path");
+var Account = require('./models/account');
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
+
+app.use(cookieParser());
 
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
 var publicPath = path.resolve(__dirname, "public");
 app.use(express.static(publicPath));
-
-//mongoose stuff
-var DreamDragonSchema = new mongoose.Schema({ 
-	player: String, 
-	breed: {type:String, enum: ['guardian', 'tundra', "fae", "mirror", "spiral", "snapper", "ridgeback", "pearlcatcher", "skydancer", "wildclaw", "coatl", "imperial", "" ]},
-	sex: Boolean,
-	element: {type:String, enum: ['fire', 'ice', "lightning", "shadow", "light", "nature", "plague", "arcane", "water", "wind", "earth"]},
-	primary: Number,
-	secondary: Number,
-	tertiary: Number,
-	pgene: {type:String, enum: ['basic', 'speckle', "tiger", "clown", "iridescent", "crystal", "ripple", "bar", ""]},
-	sgene: {type:String, enum: ['basic', 'stripes', "shimmer", "eyespots", "freckle", "seraph", "current", "daub", ""]},
-	tgene: {type:String, enum: ['basic', 'underbelly', "circuit", "gembond", "smoke", "spines", "crackle", ""]}
-	});
-	
-mongoose.model('DDragon', DreamDragonSchema);
-	DDragon = mongoose.model('DDragon');
-
-var SaleDragonSchema = new mongoose.Schema({ 
-	player: String, 	
-	breed: {type:String, enum: ['guardian', 'tundra', "fae", "mirror", "spiral", "snapper", "ridgeback", "pearlcatcher", "skydancer", "wildclaw", "coatl", "imperial", "" ]},
-	sex: Boolean,
-	element: {type:String, enum: ['fire', 'ice', "lightning", "shadow", "light", "nature", "plague", "arcane", "water", "wind", "earth"]},
-	primary: Number,
-	secondary: Number,
-	tertiary: Number,
-	pgene: {type:String, enum: ['basic', 'speckle', "tiger", "clown", "iridescent", "crystal", "ripple", "bar", ""]},
-	sgene: {type:String, enum: ['basic', 'stripes', "shimmer", "eyespots", "freckle", "seraph", "current", "daub", ""]},
-	tgene: {type:String, enum: ['basic', 'underbelly', "circuit", "gembond", "smoke", "spines", "crackle", ""]},
-	id : Number,
-	price: Number
-	});//end dreamdragonschema
-	
-mongoose.model('SDragon', SaleDragonSchema);
-	SDragon = mongoose.model('SDragon');
-	
-var AccountSchema = new mongoose.Schema({
-	"name" : String,
-	"id" : Number,
-	"password" : String
-	});
-
-mongoose.model('Account', AccountSchema);
-	Account = mongoose.model('Account');
-	
-mongoose.connect('mongodb://localhost/dragons');
-
-//handle cookies
 
 
 
@@ -72,7 +55,7 @@ app.use(function(req, res, next) {
 
 //main page
 app.get('/', function(req, res) {
-	res.render('index');
+	res.render('index', {user:req.user});
 
 });//end get main
 
@@ -111,41 +94,22 @@ app.get('/allsale', function(req, res){
 
 //buy search results
 app.post('/buy/search', function(req, res){
-	
-	//check for null values!
 	var drequest = {};
-	if(req.body.breed){
 		drequest.breed = req.body.breed;
-	}
-	if(req.body.sex){
 		drequest.sex = req.body.sex;
-	}
-	if(req.body.element){
 		drequest.element = req.body.element;
-	}
-	if(req.body.primary){
 		drequest.primary = req.body.primary;
-	}
-	if(req.body.secondary){
 		drequest.secondary = req.body.secondary;
-	}
-	if(req.body.tertiary){
 		drequest.tertiary = req.body.tertiary;
-	}
-	if(req.body.pgene){
 		drequest.pgene = req.body.pgene;
-	}
-	if(req.body.sgene){
 		drequest.sgene = req.body.sgene;
-	}
-	if(req.body.tgene){
 		drequest.tgene = req.body.tgene;
-	}
-	DDragon.find(drequest, function(err, dragons, count){
+	SDragon.find(drequest, function(err, dragons, count){
 		
 		//if results are empty
 		if(dragons.length == 0){
-			drequest.player = "me";
+			//GET SESSION
+			drequest.player = 1;
 			new DDragon(drequest).save();
 			res.send("No matches :C Your dragon has been added to the dream database");
 		
@@ -163,35 +127,18 @@ app.post('/buy/search', function(req, res){
 //add request to database
 app.post('/buy/add', function(req, res){
 		var drequest = {"player" : "me"};
-	if(req.body.breed){
 		drequest.breed = req.body.breed;
-	}
-	if(req.body.sex){
 		drequest.sex = req.body.sex;
-	}
-	if(req.body.element){
 		drequest.element = req.body.element;
-	}
-	if(req.body.primary){
 		drequest.primary = req.body.primary;
-	}
-	if(req.body.secondary){
 		drequest.secondary = req.body.secondary;
-	}
-	if(req.body.tertiary){
 		drequest.tertiary = req.body.tertiary;
-	}
-	if(req.body.pgene){
 		drequest.pgene = req.body.pgene;
-	}
-	if(req.body.sgene){
 		drequest.sgene = req.body.sgene;
-	}
-	if(req.body.tgene){
 		drequest.tgene = req.body.tgene;
-	}
 	
-	new DDragon(drequest).save();
+	
+//	new DDragon(drequest).insert();
 	res.send("hooray");
 });//end buy/add
 
@@ -199,44 +146,78 @@ app.post('/buy/add', function(req, res){
 app.post('/sell/search', function(req, res){	
 	DDragon.find(
 	{
-		breed: {$in: [req.body.breed, ""]},
-		sex: {$in: [req.body.sex, null]},
+		breed: {$in: [req.body.breed, null]} ,
+		sex: {$in: [req.body.sex, ""]},
 		element: {$in: [req.body.element, ""]},
-		primary: {$in: [ req.body.primary, 0]},
-		//secondary: {$in: [ req.body.secondary, 0]},
-		//tertiary: {$in: [ req.body.tertiary, 0]},
-		//pgene: {$in: [ req.body.pgene, ""]},
-		//sgene: {$in: [ req.body.sgene, ""]},
-		//tgene: {$in: [ req.body.tgene, ""]}
-	
+		primary: {$in: [ req.body.primary, null]},
+		secondary: {$in: [ req.body.secondary, null]},
+		tertiary: {$in: [ req.body.tertiary, null]},
+		pgene: {$in: [ req.body.pgene, ""]},
+		sgene: {$in: [ req.body.sgene, ""]},
+		tgene: {$in: [ req.body.tgene, ""]}
 	}, function(err, dragons, count){
-		
-		//if results are empty
-		if(dragons.length == 0){
-			//srequest.player = "me";
-			//new SDragon(srequest).save();
-		//	res.send("No matches :C Your dragon has been added to the sale database");
-		
-		}//end if
-		
-		else{
+			console.log(dragons);
 			res.render('ssearchresults', {dragons : dragons});
-		}
-		
 		});//end find
 });//end sell/search
 
 //login
-app.post('/logged', function(req, res){
+
+app.post('/register', function(req,res){
+	Account.register(new Account({ username: req.body.name }), req.body.pw1, function(err) {
+		if (err) {
+			console.log(err);
+			res.send("Oh no! There was a problem. Your username/password may be taken");
+			}
+		else{
+			res.redirect('/login');
+			}
+  });
+});
+
+app.post('/login', function(req,res){
+	console.log("log in");
+	passport.authenticate('local', function(err,user) {
+	console.log("auth");
+		if(user) {
+			req.logIn(user, function(err) {
+				res.send("logged in yay");
+			});
+		} else {
+			res.render('login', {message:'Your login or password is incorrect.'});
+		}
+  });
+  console.log("uh");
+});
+
+//OLD LOGIN STUFF BOO
+/*app.post('/logged', function(req, res, next){
+
+ passport.authenticate('local', function(err,user) {
+   
+   if(user) {
+      req.logIn(user, function(user) {
+		console.log("yo");
+        res.redirect('/buy');
+      });
+    } else {
+      res.render('login', {message:'Your login or password is incorrect.'});
+    }
+  })(req, res, next);
+
 	Account.find({name: req.body.name, password: req.body.password}, function(err, account, count){
 		if(account.length >=0){
 			
 			res.redirect('/');
 		}
 		else{
+			
+			console.log(account._id);
 			res.send("Sorry, wrong username or password.");
 		}
 	});
+	
+	
 });//end login 
 
 app.post('/makeaccount', function(req, res){
@@ -244,21 +225,22 @@ app.post('/makeaccount', function(req, res){
 		res.send("Passwords don't match!");
 	}
 	else{
-	
-	Account.find({name: req.body.name}, function(err, account, count){
-		if(account.length >0){
-			res.send("Sorry, that name is taken!");
-		}//end if
-		else{
-			new Account({name: req.body.name, id: req.body.id, password: req.body.pw1}).save();
-			
-			res.send("You made your account! Now go <a href=/login>log in</a>");
-		}//end else
-	});//end find
-	}//end else
-});//end register
+	  User.register(new User({username:req.body.name, id:req.body.id}), 
+      req.body.pw1, function(err, user){
+			if (err) {
+				console.log(err);
+    			res.send("Sorry, that username is already in use.");
+			} else {
+				passport.authenticate('local')(req, res, function() {
+					res.redirect('./');
+				});
+			}
+		});
+	}	
 
+});//end makeaccount
 
+*/
 
 app.listen(3000);
 console.log("listening on port 3000");
